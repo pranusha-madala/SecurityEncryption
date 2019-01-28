@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:encryption="http://www.mulesoft.org/schema/mule/encryption" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/encryption http://www.mulesoft.org/schema/mule/encryption/current/mule-encryption.xsd">
+    <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
+    <encryption:config name="Encryption" doc:name="Encryption"/>
+    <flow name="securityencryptionFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/security" doc:name="HTTP"/>
+        <logger message="input data: #[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger"/>
+        <set-payload value="#[message.payloadAs(java.lang.String)]" doc:name="Set Payload"/>
+        <encryption:encrypt config-ref="Encryption" using="JCE_ENCRYPTER" doc:name="Encryption">
+            <encryption:jce-encrypter key="mulepractice1234" keyPassword="flipmat43" algorithm="AES" encryptionMode="CBC"/>
+        </encryption:encrypt>
+        <encryption:decrypt config-ref="Encryption" using="JCE_ENCRYPTER" doc:name="Decryption">
+            <encryption:jce-encrypter key="mulepractice1234" keyPassword="flipmat43" algorithm="AES" encryptionMode="CBC"/>
+        </encryption:decrypt>
+        <set-payload value="#[payload]" doc:name="Set Payload"/>
+    </flow>
+</mule>
